@@ -5,17 +5,14 @@ import torch
 from torch_geometric.data import Data, DataLoader
 import scipy.spatial as SS
 
-print('using create_graph_rsd.py')
+'''
+Create graphs from sub-boxes 
+'''
 
 ######################## INPUT ######################
 
-#cosmo = 'fiducial'
-#BoxSize = 1000.0
-
-#snapnum = 2
+# the displacement 
 delta_d = 97.
-
-#z = {4:0, 3:0.5, 2:1, 1:2, 0:3}[snapnum]
 
 #########################################
 
@@ -110,12 +107,11 @@ def create_graph(filename, snapnum, cosmo, r, x_min, x_max, y_min, y_max, f_i, m
     factor    = (1.0 + redshift)/Hubble
     pos[:,2] = (pos[:,2] + vel[:,2]*factor)%BoxSize
     
-    #i_h  = np.array(f['int']) # 1: interloper
     # create edges
     edge_index = create_edges(pos, r)
     col,row = edge_index
     # create edge attributes
-    p_p = [(x_min+x_max)/2.0, (y_min+y_max)/2.0] # is this necessary for the angles? 
+    p_p = [(x_min+x_max)/2.0, (y_min+y_max)/2.0] 
     r_par = torch.tensor(abs(pos[col,2]-pos[row,2])/r,dtype=torch.float32).unsqueeze(dim=1)
     r_perp =torch.tensor((((pos[col,0]-pos[row,0])**2+(pos[col,1]-pos[row,1])**2)**0.5)/r,dtype=torch.float32).unsqueeze(dim=1)
     p_i = (pos[col,0:2]-p_p)/(np.sum((pos[col,0:2]-p_p)**2,axis=1)[None,:].T)**0.5
@@ -145,46 +141,3 @@ def create_graph(filename, snapnum, cosmo, r, x_min, x_max, y_min, y_max, f_i, m
                  
     return graph
 
-"""
-# Create dataloaders for train, valid, test
-def create_loaders(dataset, seed, batch_size):
-
-    np.random.seed(seed)
-    np.random.shuffle(dataset)
-
-    size_train, offset_train = int(0.8 * len(dataset)), 0
-    size_valid, offset_valid = int(0.1 * len(dataset)), int(0.8 * len(dataset))
-    size_test,  offset_test  = int(0.1 * len(dataset)), int(0.9 * len(dataset))
-
-    train_dataset = dataset[offset_train:size_train]
-    valid_dataset = dataset[offset_valid:offset_valid+size_valid]
-    test_dataset = dataset[offset_test:offset_test+size_test]
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-    return train_loader, valid_loader, test_loader
-
-"""
-
-#graph = create_dataset(2, 2, 10)
-"""print(graph)
-print(graph[0].y)
-print(graph[0].edge_index)
-print(graph[0].edge_attr)
-"""
-#create_dataset(10, 'test', 100, 4, 4, True, 2400, snapnum = 2, cosmo = 'fiducial', large_r = 'False')
-"""
-graph = create_dataset(25, 'test', 10, 4, 1, False, 2400,150., mode_edge='all')
-old = []
-for data in graph:
-    old.append(len(data.edge_index.T))
-graph = create_dataset(25, 'test', 10, 4, 1, False, 4500,250., mode_edge='all')
-new = []
-for data in graph:
-    new.append(len(data.edge_index.T))
-old = np.array(old)
-new = np.array(new)
-print(new/old[:32])
-"""
