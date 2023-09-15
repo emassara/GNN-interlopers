@@ -98,7 +98,8 @@ def create_graph(filename, snapnum, cosmo, r, x_min, x_max, y_min, y_max, f_i, m
 
     # get rsd
     if cosmo == 'fiducial':
-        Hubble = 67.11
+        Omega_m = 0.3175
+        Hubble = 100*(1-Omega_m+Omega_m*(1+redshift)**3)**0.5
     else:
         print('wrong cosmology')
         sys.exit()
